@@ -1,0 +1,17 @@
+package com.eclipse.infracom.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class StatistiqueDto {
+    private Long totalUsagers;
+    private Long totalPaiements;
+    private Long totalAffectations;
+    private Long totalMaintenances;
+}

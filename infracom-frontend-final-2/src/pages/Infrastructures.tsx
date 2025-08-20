@@ -1,0 +1,16 @@
+import Layout from "../components/Layout";
+import axiosInstance from "../api/axiosInstance";
+import CrudForm from "../components/CrudForm";
+import { useEffect, useState } from "react";
+import { pushToast } from "../components/Toast";
+interface InfrastructureRow{ id:number; name:string; location:string; status:string; }
+const ENDPOINT='/infrastructures';
+export default function Infrastructures(){
+  const [rows,setRows]=useState<InfrastructureRow[]>([]); const [loading,setLoading]=useState(true); const [creating,setCreating]=useState(false); const [editing,setEditing]=useState<InfrastructureRow|null>(null);
+  const fetchData = async ()=>{ setLoading(true); try{ const r = await axiosInstance.get<InfrastructureRow[]>(ENDPOINT); setRows(r.data);}catch(e){pushToast('Erreur charg','error')}finally{setLoading(false);} };
+  useEffect(()=>{ fetchData(); }, []);
+  const handleCreate = async (payload:any)=>{ try{ await axiosInstance.post(ENDPOINT,payload); pushToast('Créé','success'); setCreating(false); fetchData(); }catch(e){pushToast('Err','error')} };
+  const handleUpdate = async (payload:any)=>{ if(!editing) return; try{ await axiosInstance.put(`${ENDPOINT}/${(editing as any).id}`, payload); pushToast('Maj','success'); setEditing(null); fetchData(); }catch(e){pushToast('Err','error')} };
+  const handleDelete = async (id:number)=>{ if(!confirm('Confirmer?')) return; try{ await axiosInstance.delete(`${ENDPOINT}/${id}`); pushToast('Suppr','success'); fetchData(); }catch(e){pushToast('Err','error')} };
+  return (<Layout><div className="flex items-center justify-between mb-4"><h2 className="text-2xl font-semibold">Infrastructures</h2><button className="bg-green-600 text-white px-3 py-2 rounded" onClick={()=>setCreating(true)}>Nouveau</button></div>{creating&&<div className="bg-white p-4 mb-4 border"><CrudForm initial={{}} fields={[{name:'name',label:'Nom',type:'string'},{name:'location',label:'Localisation',type:'string'},{name:'status',label:'Statut',type:'string'}]} onSubmit={handleCreate} submitLabel="Créer" /></div>}{editing&&<div className="bg-white p-4 mb-4 border"><CrudForm initial={editing as any} fields={[{name:'name',label:'Nom',type:'string'},{name:'location',label:'Localisation',type:'string'},{name:'status',label:'Statut',type:'string'}]} onSubmit={handleUpdate} submitLabel="Mettre à jour" /></div>}<div className="bg-white border rounded overflow-auto"><table className="w-full"><thead className="bg-gray-100"><tr><th className="border px-3 py-2">ID</th><th className="border px-3 py-2">Nom</th><th className="border px-3 py-2">Localisation</th><th className="border px-3 py-2">Statut</th><th className="border px-3 py-2">Actions</th></tr></thead><tbody>{rows.map(r=>(<tr key={r.id} className="hover:bg-gray-50"><td className="border px-3 py-2">{r.id}</td><td className="border px-3 py-2">{r.name}</td><td className="border px-3 py-2">{r.location}</td><td className="border px-3 py-2">{r.status}</td><td className="border px-3 py-2 space-x-2"><button className="px-2 py-1 rounded bg-yellow-500 text-white" onClick={()=>setEditing(r)}>Éditer</button><button className="px-2 py-1 rounded bg-red-600 text-white" onClick={()=>handleDelete(r.id)}>Supprimer</button></td></tr>))}</tbody></table></div></Layout>);
+}
