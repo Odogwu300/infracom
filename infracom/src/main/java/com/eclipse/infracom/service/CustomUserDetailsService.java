@@ -3,6 +3,7 @@ package com.eclipse.infracom.service;
 import com.eclipse.infracom.model.User;
 import com.eclipse.infracom.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
@@ -16,10 +17,11 @@ public class CustomUserDetailsService  implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User Not Found with username: " + username);
         }
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_ADMIN");
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                Collections.emptyList()
+                Collections.singletonList(authority)
         );
     }
 }
